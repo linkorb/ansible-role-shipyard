@@ -1,0 +1,72 @@
+- name: "Set shipyard_stack_chart_local_path"
+  set_fact:
+    shipyard_stack_chart_local_path: "{{ playbook_dir }}/shipyard-charts/{{ shipyard_stack.chart }}"
+
+- name: "Print shipyard_stack_chart_local_path: "
+  debug:
+    msg: "{{ shipyard_stack_chart_local_path }}"
+
+- name: "Set shipyard_stack_chart_remote_path"
+  set_fact:
+    shipyard_stack_chart_remote_path: "/opt/shipyard/stacks/{{ shipyard_stack.name }}"
+
+- name: Ensure remote stack directory for {{ shipyard_stack.name }}
+  become: true
+  ansible.builtin.file:
+    path: "{{ shipyard_stack_chart_remote_path }}"
+    state: directory
+    mode: '0700'
+
+- name: "Values file"
+  set_fact:
+    # -- Custom stack values from the inventory
+    stack_values: "{{ lookup('file', '{{ inventory_dir }}/shipyard/stacks/{{ shipyard_stack.name }}/values.yaml') | from_yaml }}"
+    # -- Default stack values from the role
+    default_values: "{{ lookup('file', '{{ shipyard_stack_chart_local_path }}/values.yaml') | from_yaml }}"
+
+- name: "Combine values"
+  set_fact:
+    values: "{{ default_values | combine(stack_values, recursive=true) }}"
+
+- name: "Debug combined values"
+  ansible.builtin.debug:
+    msg: "{{ values }}"
+
+- name: "Debug shipyard_stack_chart_local_path"
+  ansible.builtin.debug:
+    msg: "Path: '{{ shipyard_stack_chart_local_path }}'"
+
+- name: Find stack chart templates
+  delegate_to: localhost
+  ansible.builtin.find:
+    paths: "{{ shipyard_stack_chart_local_path }}/templates"
+  register: files
+
+- name: "Initialize empty shipyard_stack_chart_templates array"
+  set_fact:
+    shipyard_stack_chart_templates: []
+
+- name: "Load shipyard_stack_chart_templates"
+  set_fact:
+    shipyard_stack_chart_templates: "{{ shipyard_stack_chart_templates + [item.path | basename] }}"
+  loop: "{{ files.files }}"
+
+- name: Render stack template files to remote host
+  become: true
+  vars:
+    # Define two top-level (hence the uppercase first character - just like Helm) variables to use in the templates
+    Stack: "{{ shipyard_stack }}"
+    Values: "{{ values }}"
+  ansible.builtin.template:
+    src: "{{ shipyard_stack_chart_local_path }}/templates/{{ item }}"
+    dest: "{{ shipyard_stack_chart_remote_path }}/{{ item }}"
+    mode: u=rw,g=r
+  loop: "{{ shipyard_stack_chart_templates }}"
+
+- name: Deploy shipyard stack
+  become: true
+  docker_stack:
+    state: present
+    name: "{{ shipyard_stack.name }}"
+    compose:
+      - "{{ shipyard_stack_chart_remote_path }}/docker-compose.yml"

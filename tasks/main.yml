@@ -1,0 +1,35 @@
+---
+- name: "Set shipyard_filename"
+  set_fact:
+    shipyard_filename: "{{ inventory_dir }}/shipyard.yaml"
+
+- name: "Shipyard config"
+  set_fact:
+    shipyard_config: "{{ lookup('file', '{{ shipyard_filename }}') | from_yaml }}"
+
+- name: "Stackfile debug"
+  ansible.builtin.debug:
+    msg: "{{ shipyard_config }}"
+
+  # -- Joost, this is needed since we've removed the hosts def
+- name: "Initialize empty shipyard_stacks array"
+  set_fact:
+    shipyard_stacks: []
+
+- name: "Load shipyard stacks for this host"
+  set_fact:
+    shipyard_stacks: "{{ shipyard_stacks + [item] }}"
+  loop: "{{ shipyard_config.stacks }}"
+  when: item.host == inventory_hostname
+
+- name: "Debug: shipyard.stacks"
+  ansible.builtin.debug:
+    msg: "{{ shipyard_stacks }}"
+
+
+- name: "Deploy shipyard stacks"
+  include_tasks: deploy-stack.yml
+  loop: "{{ shipyard_stacks }}"
+  loop_control:
+    label: "Deploy stack: [{{ shipyard_stack.name }}]"
+    loop_var: shipyard_stack
