@@ -37,7 +37,7 @@ Setup your `requirements.yml` file to include the role:
 
 ```yaml
 roles:
-  - name: joostfaassen.ansible_role_shipyard
+  - name: linkorb.shipyard
 ```
 
 Then run `ansible-galaxy install -r requirements.yml` to install the role.
@@ -125,7 +125,7 @@ See the [example/shipyard/chart/whoami](example/shipyard/chart/whoami) directory
 
 ## TODO
 
-* [ ] Migrate the role on Ansible Galaxy to the `linkorb` organization namespace
+* [+] Migrate the role on Ansible Galaxy to the `linkorb` organization namespace
 * [ ] Make the location of the `shipyard.yaml` configurable
 * [ ] Make the location of the Chart directories configurable
 * [ ] Support multiple chart directories
