@@ -40,6 +40,7 @@
   delegate_to: localhost
   ansible.builtin.find:
     paths: "{{ shipyard_stack_chart_local_path }}/templates"
+    hidden: true
   register: files
 
 - name: "Initialize empty shipyard_stack_chart_templates array"
