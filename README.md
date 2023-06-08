@@ -125,7 +125,7 @@ See the [example/shipyard/chart/whoami](example/shipyard/chart/whoami) directory
 
 ## TODO
 
-* [+] Migrate the role on Ansible Galaxy to the `linkorb` organization namespace
+* [x] Migrate the role on Ansible Galaxy to the `linkorb` organization namespace
 * [ ] Make the location of the `shipyard.yaml` configurable
 * [ ] Make the location of the Chart directories configurable
 * [ ] Support multiple chart directories
