@@ -80,7 +80,7 @@ In your ansible playbook (usually `site.yml`), add the following:
   tags:
     - shipyard # or any other tag you want to use to run this playbook
   roles:
-    - role: joostfaassen.ansible_role_shipyard # the role from ansible galaxy
+    - role: linkorb.shipyard # the role from ansible galaxy
 ```
 
 This will look for the `shipyard.yml` file in the root of the playbook directory, and deploy the stacks defined in there to configured hosts.
