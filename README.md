@@ -81,7 +81,17 @@ In your ansible playbook (usually `site.yml`), add the following:
     - shipyard # or any other tag you want to use to run this playbook
   roles:
     - role: linkorb.shipyard # the role from ansible galaxy
+      vars:
+        shipyard_filename: "shipyard/shipyard.yaml"
+        shipyard_charts_path: "shipyard/charts"
+        shipyard_stacks_path: "shipyard/stacks"
 ```
+
+The role accepts 3 (optional) configuration variables:
+
+* `shipyard_filename`: Path to your shipyard.yaml file. Default: `{{inventory_path}}`/shipyard.yaml`
+* `shipyard_charts_path`: Path to your charts directory. Default: `{{inventory_path}}`/shipyard/charts`
+* `shipyard_stacks_path`: Path to your stacks (values.yaml / values.sops.yaml) directory. Default: `{{inventory_path}}`/shipyard/stacks`
 
 This will look for the `shipyard.yml` file in the root of the playbook directory, and deploy the stacks defined in there to configured hosts.
 

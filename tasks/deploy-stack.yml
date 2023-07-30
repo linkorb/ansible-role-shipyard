@@ -1,6 +1,6 @@
 - name: "Set shipyard_stack_chart_local_path"
   set_fact:
-    shipyard_stack_chart_local_path: "{{ playbook_dir }}/shipyard-charts/{{ shipyard_stack.chart }}"
+    shipyard_stack_chart_local_path: "{{ shipyard_charts_path }}/{{ shipyard_stack.chart }}"
 
 - name: "Print shipyard_stack_chart_local_path: "
   debug:

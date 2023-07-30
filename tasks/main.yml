@@ -1,7 +1,18 @@
 ---
-- name: "Set shipyard_filename"
+- name: "Set default shipyard_filename"
   set_fact:
     shipyard_filename: "{{ inventory_dir }}/shipyard.yaml"
+  when: shipyard_filename is undefined
+
+- name: "Set default shipyard_charts_path"
+  set_fact:
+    shipyard_charts_path: "{{ inventory_dir }}/shipyard/charts"
+  when: shipyard_charts_path is undefined
+
+- name: "Set default shipyard_stacks_path"
+  set_fact:
+    shipyard_stacks_path: "{{ inventory_dir }}/shipyard/stacks"
+  when: shipyard_stacks_path is undefined
 
 - name: "Shipyard config"
   set_fact:
