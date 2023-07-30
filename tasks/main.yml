@@ -22,7 +22,6 @@
   ansible.builtin.debug:
     msg: "{{ shipyard_config }}"
 
-  # -- Joost, this is needed since we've removed the hosts def
 - name: "Initialize empty shipyard_stacks array"
   set_fact:
     shipyard_stacks: []
@@ -36,7 +35,6 @@
 - name: "Debug: shipyard.stacks"
   ansible.builtin.debug:
     msg: "{{ shipyard_stacks }}"
-
 
 - name: "Deploy shipyard stacks"
   include_tasks: deploy-stack.yml
