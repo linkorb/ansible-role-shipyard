@@ -20,13 +20,14 @@
 - name: "Values file"
   set_fact:
     # -- Custom stack values from the inventory
-    stack_values: "{{ lookup('file', '{{ inventory_dir }}/shipyard/stacks/{{ shipyard_stack.name }}/values.yaml') | from_yaml }}"
+    stack_values: "{{ lookup('file', '{{shipyard_stacks_path}}/{{ shipyard_stack.name }}/values.yaml', errors='ignore') | from_yaml | default({}, true) }}"
+    stack_values_sops: "{{ lookup('community.sops.sops', '{{shipyard_stacks_path}}/{{ shipyard_stack.name }}/values.sops.yaml', errors='ignore') | from_yaml | default({}, true) }}"
     # -- Default stack values from the role
     default_values: "{{ lookup('file', '{{ shipyard_stack_chart_local_path }}/values.yaml') | from_yaml }}"
 
 - name: "Combine values"
   set_fact:
-    values: "{{ default_values | combine(stack_values, recursive=true) }}"
+    values: "{{ default_values | combine(stack_values, recursive=true) | combine(stack_values_sops, recursive=true) }}"
 
 - name: "Debug combined values"
   ansible.builtin.debug:

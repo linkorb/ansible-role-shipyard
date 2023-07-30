@@ -103,6 +103,19 @@ my-shipyard-chart/
 
 The Shipyard role will copy over all files in the `templates/` directory onto the target host, and then render them using the values from the `values.yaml` file.
 
+## values.yaml / values.sops.yaml and chart default values
+
+Every stack (one instance of a chart), takes a values file containing the values for that instance of the chart.
+The values are loaded from `{{shipyard_stacks_path}}/{{stack_name}}/values.yaml`. If a `values.sops.yaml` is detected, it is also loaded and decrypted automatically (based on the `.sops.yaml` in the root of your repo).
+
+Every chaty provides a default values.yaml too. Any stack-level value that remains undefined will be set to the chart's default value.
+
+The loading (and override precedence) order is:
+
+1. the default values from the chart
+2. the values.yaml from the stack
+3. the values.sops.yaml from the stack
+
 ## Target host directory structure
 
 On the target hosts (Docker Swarm managers), the role will create the following directory structure:
