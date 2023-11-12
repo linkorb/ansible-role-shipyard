@@ -1,7 +1,7 @@
 ---
 - name: "Set default shipyard_filename"
   set_fact:
-    shipyard_filename: "{{ inventory_dir }}/shipyard.yaml"
+    shipyard_filename: "{{ inventory_dir }}/shipyard/shipyard.yaml"
   when: shipyard_filename is undefined
 
 - name: "Set default shipyard_charts_path"
@@ -22,6 +22,7 @@
   ansible.builtin.debug:
     msg: "{{ shipyard_config }}"
 
+
 - name: "Initialize empty shipyard_stacks array"
   set_fact:
     shipyard_stacks: []
@@ -30,7 +31,13 @@
   set_fact:
     shipyard_stacks: "{{ shipyard_stacks + [item] }}"
   loop: "{{ shipyard_config.stacks }}"
-  when: item.host == inventory_hostname
+  when: "item.host == inventory_hostname and stack is undefined and (shipyard_tag is not defined or (item.tag is defined and shipyard_tag == item.tag))"
+
+- name: "Load shipyard stacks by selected stack name"
+  set_fact:
+    shipyard_stacks: "{{ shipyard_stacks + [item] }}"
+  loop: "{{ shipyard_config.stacks }}"
+  when: "item.host == inventory_hostname and stack is defined and stack == item.name"
 
 - name: "Debug: shipyard.stacks"
   ansible.builtin.debug:

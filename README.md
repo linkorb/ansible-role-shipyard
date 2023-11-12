@@ -53,21 +53,25 @@ stacks:
     chart: traefik
     host: swarm-host-a
     values: my-traefik/values.yaml
+    tag: lb
 
   - name: my-whoami
     chart: whoami
     host: swarm-host-a
     values: my-whoami/values.yaml
+    tag: apps
 
   - name: my-mariadb
     chart: mariadb
     host: swarm-host-a
     values: my-mariadb/values.yaml
+    tag: db
 
   - name: my-whoami-b
     chart: whoami
     host: swarm-host-b
     values: my-whoami-b/values.yaml
+    tag: apps
 ```
 
 ## Adding the shipyard role to your ansible playbook
@@ -85,6 +89,7 @@ In your ansible playbook (usually `site.yml`), add the following:
         shipyard_filename: "shipyard/shipyard.yaml"
         shipyard_charts_path: "shipyard/charts"
         shipyard_stacks_path: "shipyard/stacks"
+        shipyard_tag: apps
 ```
 
 The role accepts 3 (optional) configuration variables:
@@ -92,6 +97,7 @@ The role accepts 3 (optional) configuration variables:
 * `shipyard_filename`: Path to your shipyard.yaml file. Default: `{{inventory_path}}`/shipyard.yaml`
 * `shipyard_charts_path`: Path to your charts directory. Default: `{{inventory_path}}`/shipyard/charts`
 * `shipyard_stacks_path`: Path to your stacks (values.yaml / values.sops.yaml) directory. Default: `{{inventory_path}}`/shipyard/stacks`
+* `shipyard_tag`: optionally only deploy stacks with this tag. Default: empty
 
 This will look for the `shipyard.yml` file in the root of the playbook directory, and deploy the stacks defined in there to configured hosts.
 
