@@ -150,7 +150,7 @@ After the templates are rendered and written to the host, the role will run `doc
 
 ## Example Shipyard Chart
 
-See the [example/shipyard/chart/whoami](example/shipyard/chart/whoami) directory for an example Shipyard Chart.
+See the [example/shipyard/charts/whoami](example/shipyard/charts/whoami) directory for an example Shipyard Chart.
 
 ## TODO
 
