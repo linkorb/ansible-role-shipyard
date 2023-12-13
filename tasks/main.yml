@@ -31,13 +31,19 @@
   set_fact:
     shipyard_stacks: "{{ shipyard_stacks + [item] }}"
   loop: "{{ shipyard_config.stacks }}"
-  when: "item.host == inventory_hostname and stack is undefined and (shipyard_tag is not defined or (item.tag is defined and shipyard_tag == item.tag))"
+  when:
+  - item.host == inventory_hostname
+  - stack is not defined
+  - shipyard_tag is not defined or (item.tag is defined and shipyard_tag == item.tag)
 
 - name: "Load shipyard stacks by selected stack name"
   set_fact:
     shipyard_stacks: "{{ shipyard_stacks + [item] }}"
   loop: "{{ shipyard_config.stacks }}"
-  when: "item.host == inventory_hostname and stack is defined and stack == item.name"
+  when:
+  - item.host == inventory_hostname
+  - stack is defined
+  - stack == item.name
 
 - name: "Debug: shipyard.stacks"
   ansible.builtin.debug:
