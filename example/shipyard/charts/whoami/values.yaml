@@ -16,7 +16,7 @@ port:
 traefik:
   enabled: false
   middlewares: null
-  network: traefik
+  network:
   tls:
     enabled: false
     certresolver: null
