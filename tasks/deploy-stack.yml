@@ -68,7 +68,8 @@
 - name: Deploy shipyard stack
   become: true
   docker_stack:
-    state: present
     name: "{{ shipyard_stack.name }}"
+    state: present
+    with_registry_auth: true
     compose:
       - "{{ shipyard_stack_chart_remote_path }}/docker-compose.yml"
