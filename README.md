@@ -27,7 +27,12 @@ The Ansible role assumes that you have pre-configured the target hosts with:
 
 ## Role variables
 
-* None (see TODO section)
+The role can be customised by some optional variables:
+
+* `shipyard_filename`: Path to your shipyard.yaml file. Default: `{{inventory_path}}`/shipyard.yaml`
+* `shipyard_charts_path`: Path to your charts directory. Default: `{{inventory_path}}`/shipyard/charts`
+* `shipyard_stacks_path`: Path to your stacks (values.yaml / values.sops.yaml) directory. Default: `{{inventory_path}}`/shipyard/stacks`
+* `shipyard_tag`: optionally only deploy stacks with this tag. Default: empty
 
 ## Usage
 
@@ -86,20 +91,11 @@ In your ansible playbook (usually `site.yml`), add the following:
   roles:
     - role: linkorb.shipyard # the role from ansible galaxy
       vars:
-        shipyard_filename: "shipyard/shipyard.yaml"
-        shipyard_charts_path: "shipyard/charts"
-        shipyard_stacks_path: "shipyard/stacks"
         shipyard_tag: apps
 ```
 
-The role accepts 3 (optional) configuration variables:
-
-* `shipyard_filename`: Path to your shipyard.yaml file. Default: `{{inventory_path}}`/shipyard.yaml`
-* `shipyard_charts_path`: Path to your charts directory. Default: `{{inventory_path}}`/shipyard/charts`
-* `shipyard_stacks_path`: Path to your stacks (values.yaml / values.sops.yaml) directory. Default: `{{inventory_path}}`/shipyard/stacks`
-* `shipyard_tag`: optionally only deploy stacks with this tag. Default: empty
-
-This will look for the `shipyard.yml` file in the root of the playbook directory, and deploy the stacks defined in there to configured hosts.
+This will look for the `shipyard.yml` file in the root of the playbook directory.
+It will deploy to the managed hosts the stacks tagged with `apps` listed therein.
 
 ## Creating a Shipyard Chart
 
