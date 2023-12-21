@@ -32,6 +32,7 @@ The role can be customised by some optional variables:
 * `shipyard_filename`: Path to your shipyard.yaml file. Default: `{{inventory_path}}`/shipyard.yaml`
 * `shipyard_charts_path`: Path to your charts directory. Default: `{{inventory_path}}`/shipyard/charts`
 * `shipyard_stacks_path`: Path to your stacks (values.yaml / values.sops.yaml) directory. Default: `{{inventory_path}}`/shipyard/stacks`
+* `shipyard_stacks_docker_secrets`: A list of Docker Secrets.  Default `[]`
 * `shipyard_tag`: optionally only deploy stacks with this tag. Default: empty
 
 ## Usage

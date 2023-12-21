@@ -65,6 +65,15 @@
     mode: u=rw,g=r
   loop: "{{ shipyard_stack_chart_templates }}"
 
+- name: Docker secrets are present on a Swarm Manager node
+  become: true
+  community.docker.docker_secret:
+    name: "{{ item.name }}"
+    data: "{{ item.data | b64encode }}"
+    data_is_b64: true
+    state: present
+  loop: "{{ shipyard_stacks_docker_secrets }}"
+
 - name: Deploy shipyard stack
   become: true
   docker_stack:
