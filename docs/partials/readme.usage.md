@@ -1,43 +1,3 @@
-<!-- Managed by https://github.com/linkorb/repo-ansible. Manual changes will be overwritten. -->
-ansible-role-shipyard
-============
-
-
-## About Shipyard
-
-Shipyard is a tool for orchestrating Docker swarm clusters and stacks from Ansible playbooks.
-
-It is heavily inspired by [Helm](https://helm.sh/) and [helmfile](https://github.com/helmfile/helmfile) and provides the same concepts in a non-kubernetes but swarm-enabled environment.
-
-## Concepts:
-
-* **Shipyard Chart**: A package defining a docker compose stack and all of it's related files (config files, envs, etc), similar to a Helm Chart, a yum RPM file or a Homebrew formula. A chart contains all resource definitions necessary to deploy and run an application as a Docker Swarm stack, arranged in a specific layout. A chart may be used to deploy a simple application, or a full web application stack with multiple dependencies, such as HTTP servers, database, caches and so on. (similar to a Helm Chart)
-* **Shipyard Stack**: an instance of a Shipyard Chart, customized through a `values.yaml` file. (similar to a Helm Release)
-* **shipyard.yaml**: a file defining which Charts to instantiate using which values on which docker hosts. (similar to a helmfile.yaml file)
-
-As you can see, the concepts are very similar to Helm and helmfile. The main difference is that Shipyard is not kubernetes-specific and does not require a kubernetes cluster to run. Instead, it uses Docker Swarm to deploy the stacks.
-
-
-
-
-
-## Prerequisites
-
-The Ansible role assumes that you have pre-configured the target hosts with:
-
-* Docker Swarm (i.e. `docker swarm deploy` works)
-* Docker Compose (i.e. `docker-compose` works)
-* Docker pull authentication for used images (i.e. `docker pull my-image` works)
-
-## Role variables
-
-The role can be customised by some optional variables:
-
-* `shipyard_filename`: Path to your shipyard.yaml file. Default: `{{inventory_path}}`/shipyard.yaml`
-* `shipyard_charts_path`: Path to your charts directory. Default: `{{inventory_path}}`/shipyard/charts`
-* `shipyard_stacks_path`: Path to your stacks (values.yaml / values.sops.yaml) directory. Default: `{{inventory_path}}`/shipyard/stacks`
-* `shipyard_stacks_docker_secrets`: A list of Docker Secrets.  Default `[]`
-* `shipyard_tag`: optionally only deploy stacks with this tag. Default: empty
 ## Usage
 
 ### Obtain the role from Ansible galaxy
@@ -155,15 +115,4 @@ After the templates are rendered and written to the host, the role will run `doc
 
 See the [example/shipyard/chart/whoami](example/shipyard/chart/whoami) directory for an example Shipyard Chart.
 
-## Contributing
 
-We welcome contributions to make this repository even better. Whether it's fixing a bug, adding a feature, or improving documentation, your help is highly appreciated. To get started, fork this repository then clone your fork.
-
-Be sure to familiarize yourself with LinkORB's [Contribution Guidelines](/CONTRIBUTING.md) for our standards around commits, branches, and pull requests, as well as our [code of conduct](/CODE_OF_CONDUCT.md) before submitting any changes.
-
-If you are unable to implement changes you like yourself, don't hesitate to open a new issue report so that we or others may take care of it.
-## Brought to you by the LinkORB Engineering team
-
-<img src="http://www.linkorb.com/d/meta/tier1/images/linkorbengineering-logo.png" width="200px" /><br />
-Check out our other projects at [linkorb.com/engineering](http://www.linkorb.com/engineering).
-By the way, we're hiring!

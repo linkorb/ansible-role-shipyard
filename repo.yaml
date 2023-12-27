@@ -1,0 +1,13 @@
+codeowners:
+- owners:
+  - '@joostfaassen'
+  pattern: '*'
+description: 'Helm + Helmfile for Docker compose, implemented as an Ansible Role.'
+license: mit
+license_year: 2023
+name: ansible-role-shipyard
+type: other
+visibility: public
+github:
+  features:
+    issues: true
