@@ -16,7 +16,7 @@
 
 - name: "Shipyard config"
   set_fact:
-    shipyard_config: "{{ lookup('file', shipyard_filename) | from_yaml }}"
+    shipyard_config: "{{ lookup('template', shipyard_filename) | from_yaml }}"
 
 - name: "Stackfile debug"
   ansible.builtin.debug:
