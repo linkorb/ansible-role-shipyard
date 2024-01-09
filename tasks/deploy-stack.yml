@@ -72,7 +72,7 @@
     data: "{{ item.data | b64encode }}"
     data_is_b64: true
     state: present
-  loop: "{{ shipyard_stacks_docker_secrets }}"
+  loop: "{{ shipyard_stacks_docker_secrets|default([]) }}"
 
 - name: Deploy shipyard stack
   become: true
