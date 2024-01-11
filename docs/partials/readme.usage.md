@@ -11,7 +11,7 @@ roles:
 
 Then run `ansible-galaxy install -r requirements.yml` to install the role.
 
-### Creating a shipyard.yaml file:
+## Creating a shipyard.yaml file:
 
 The `shipyard.yaml` file defines which stacks get deployed to which hosts. It is similar to a helmfile.yaml file.
 
@@ -22,24 +22,28 @@ stacks:
     chart: traefik
     host: swarm-host-a
     values: my-traefik/values.yaml
+    tag: lb
 
   - name: my-whoami
     chart: whoami
     host: swarm-host-a
     values: my-whoami/values.yaml
+    tag: apps
 
   - name: my-mariadb
     chart: mariadb
     host: swarm-host-a
     values: my-mariadb/values.yaml
+    tag: db
 
   - name: my-whoami-b
     chart: whoami
     host: swarm-host-b
     values: my-whoami-b/values.yaml
+    tag: apps
 ```
 
-### Adding the shipyard role to your ansible playbook
+## Adding the shipyard role to your ansible playbook
 
 In your ansible playbook (usually `site.yml`), add the following:
 
@@ -51,20 +55,13 @@ In your ansible playbook (usually `site.yml`), add the following:
   roles:
     - role: linkorb.shipyard # the role from ansible galaxy
       vars:
-        shipyard_filename: "shipyard/shipyard.yaml"
-        shipyard_charts_path: "shipyard/charts"
-        shipyard_stacks_path: "shipyard/stacks"
+        shipyard_tag: apps
 ```
 
-The role accepts 3 (optional) configuration variables:
+This will look for the `shipyard.yml` file in the root of the playbook directory.
+It will deploy to the managed hosts the stacks tagged with `apps` listed therein.
 
-* `shipyard_filename`: Path to your shipyard.yaml file. Default: `{{inventory_path}}`/shipyard.yaml`
-* `shipyard_charts_path`: Path to your charts directory. Default: `{{inventory_path}}`/shipyard/charts`
-* `shipyard_stacks_path`: Path to your stacks (values.yaml / values.sops.yaml) directory. Default: `{{inventory_path}}`/shipyard/stacks`
-
-This will look for the `shipyard.yml` file in the root of the playbook directory, and deploy the stacks defined in there to configured hosts.
-
-### Creating a Shipyard Chart
+## Creating a Shipyard Chart
 
 Directory structure of a Shipyard Chart:
 
@@ -82,7 +79,7 @@ my-shipyard-chart/
 
 The Shipyard role will copy over all files in the `templates/` directory onto the target host, and then render them using the values from the `values.yaml` file.
 
-### values.yaml / values.sops.yaml and chart default values
+## values.yaml / values.sops.yaml and chart default values
 
 Every stack (one instance of a chart), takes a values file containing the values for that instance of the chart.
 The values are loaded from `{{shipyard_stacks_path}}/{{stack_name}}/values.yaml`. If a `values.sops.yaml` is detected, it is also loaded and decrypted automatically (based on the `.sops.yaml` in the root of your repo).
@@ -107,12 +104,12 @@ On the target hosts (Docker Swarm managers), the role will create the following 
     # ... etc
 ```
 
-### Deploying the stacks to Docker Swarm
+## Deploying the stacks to Docker Swarm
 
 After the templates are rendered and written to the host, the role will run `docker stack deploy` on the target host to deploy the docker swarm stack.
 
-### Example Shipyard Chart
+## Example Shipyard Chart
 
-See the [example/shipyard/chart/whoami](example/shipyard/chart/whoami) directory for an example Shipyard Chart.
+See the [example/shipyard/charts/whoami](example/shipyard/chart/whoami) directory for an example Shipyard Chart.
 
 
