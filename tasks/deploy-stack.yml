@@ -1,14 +1,22 @@
-- name: "Set chart_path"
+# These tasks are included once per shipyard_stack
+
+- name: "Gather some facts about {{ shipyard_stack.name }}"
   set_fact:
     chart_path: "{{ shipyard_charts_path }}/{{ shipyard_stack.chart }}"
-
-- name: "Print chart_path: "
-  debug:
-    msg: "{{ chart_path }}"
-
-- name: "Set stack_remote_path"
-  set_fact:
     stack_remote_path: "/opt/shipyard/stacks/{{ shipyard_stack.name }}"
+    # Lookup default values from the Chart
+    default_values: "{{ lookup('file', '{{ shipyard_charts_path }}/{{ shipyard_stack.chart }}/values.yaml') | from_yaml }}"
+    # Lookup values from the Stack
+    stack_values: "{{ lookup('file', '{{shipyard_stacks_path}}/{{ shipyard_stack.name }}/values.yaml', errors='ignore') | from_yaml | default({}, true) }}"
+    stack_values_sops: "{{ lookup('community.sops.sops', '{{shipyard_stacks_path}}/{{ shipyard_stack.name }}/values.sops.yaml', errors='ignore') | from_yaml | default({}, true) }}"
+
+- name: "Gather the {{ shipyard_stack.name }} values"
+  set_fact:
+    values: "{{ default_values | combine(stack_values, recursive=true) | combine(stack_values_sops, recursive=true) }}"
+
+- name: "Debug {{ shipyard_stack.name }} combined values"
+  ansible.builtin.debug:
+    var: values
 
 - name: Ensure remote stack directory for {{ shipyard_stack.name }}
   become: true
@@ -16,26 +24,6 @@
     path: "{{ stack_remote_path }}"
     state: directory
     mode: '0700'
-
-- name: "Values file"
-  set_fact:
-    # -- Custom stack values from the inventory
-    stack_values: "{{ lookup('file', '{{shipyard_stacks_path}}/{{ shipyard_stack.name }}/values.yaml', errors='ignore') | from_yaml | default({}, true) }}"
-    stack_values_sops: "{{ lookup('community.sops.sops', '{{shipyard_stacks_path}}/{{ shipyard_stack.name }}/values.sops.yaml', errors='ignore') | from_yaml | default({}, true) }}"
-    # -- Default stack values from the role
-    default_values: "{{ lookup('file', '{{ chart_path }}/values.yaml') | from_yaml }}"
-
-- name: "Combine values"
-  set_fact:
-    values: "{{ default_values | combine(stack_values, recursive=true) | combine(stack_values_sops, recursive=true) }}"
-
-- name: "Debug combined values"
-  ansible.builtin.debug:
-    msg: "{{ values }}"
-
-- name: "Debug chart_path"
-  ansible.builtin.debug:
-    msg: "Path: '{{ chart_path }}'"
 
 - name: Find stack chart templates
   delegate_to: localhost
@@ -65,7 +53,7 @@
     mode: u=rw,g=r
   loop: "{{ shipyard_stack_chart_templates }}"
 
-- name: Docker secrets are present on a Swarm Manager node
+- name: Docker secrets are present
   become: true
   community.docker.docker_secret:
     name: "{{ item.name }}"
