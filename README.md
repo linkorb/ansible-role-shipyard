@@ -134,6 +134,28 @@ The loading (and override precedence) order is:
 2. the values.yaml from the stack
 3. the values.sops.yaml from the stack
 
+### Special Values
+
+- `primed_volumes`: a list of docker volume info objects that will be created for the stack.
+
+    This value is meaningful only when a Chart supports it.
+
+    Each volume info object has the following properties:
+
+    - `name`: The name of the volume
+    - `target`: The place in the container to mount the volume
+    - `path`: The path, under the stack path on the remote host, to copy recursively into the volume.
+
+    For example, a volume containing MariaDB database initialisation scripts can be created like so:
+
+    ```yaml
+    # my-stack/values.yaml
+    primed_volumes:
+    - name: mariadb_init_data
+      target: /docker-entrypoint-initdb.d # this is where the MariaDB container looks for init data
+      path: docker-entrypoint-initdb.d # this dir is present in the Chart templates/ dir
+    ```
+
 ## Target host directory structure
 
 On the target hosts (Docker Swarm managers), the role will create the following directory structure:

@@ -62,6 +62,20 @@
   with_community.general.filetree: '{{ chart_path }}/templates/'
   when: item.state == 'file'
 
+- name: Docker volumes for {{ shipyard_stack.name }} are pesent in the swarm
+  become: true
+  community.docker.docker_volume:
+    name: '{{ item.name }}'
+    state: present
+  loop: '{{ values.primed_volumes | default([]) }}'
+
+- name: Docker volumes for {{ shipyard_stack.name }} are primed
+  become: true
+  ansible.builtin.shell:
+    cmd: 'tar --directory={{ stack_remote_path }}/{{ item.path }} --create --file=- . | docker run --rm --interactive --volume {{ item.name }}:/data alpine tar --directory=/data --extract --verbose --file=- && touch {{ stack_remote_path }}/{{ item.path }}/.done'
+    creates: '{{ stack_remote_path }}/{{ item.path }}/.done'
+  loop: '{{ values.primed_volumes | default([]) }}'
+
 - name: Docker secrets are present
   become: true
   community.docker.docker_secret:
