@@ -25,33 +25,42 @@
     state: directory
     mode: '0700'
 
-- name: Find stack chart templates
-  delegate_to: localhost
-  ansible.builtin.find:
-    paths: "{{ chart_path }}/templates"
-    hidden: true
-  register: files
+- name: Print directories that will be present in the {{ shipyard_stack.name }} stack directory
+  ansible.builtin.debug:
+    msg: 'directory: {{ stack_remote_path }}/{{ item.path }}; mode: {{ item.mode }}'
+    verbosity: 1
+  with_community.general.filetree: '{{ chart_path }}/templates/'
+  when: item.state == 'directory'
 
-- name: "Initialize empty shipyard_stack_chart_templates array"
-  set_fact:
-    shipyard_stack_chart_templates: []
+- name: Directories are present in the {{ shipyard_stack.name }} stack directory
+  become: true
+  ansible.builtin.file:
+    path: '{{ stack_remote_path }}/{{ item.path }}'
+    state: directory
+    mode: '{{ item.mode }}'
+  with_community.general.filetree: '{{ chart_path }}/templates/'
+  when: item.state == 'directory'
 
-- name: "Load shipyard_stack_chart_templates"
-  set_fact:
-    shipyard_stack_chart_templates: "{{ shipyard_stack_chart_templates + [item.path | basename] }}"
-  loop: "{{ files.files }}"
+- name: Print templated files that will be present in the {{ shipyard_stack.name }} stack directory
+  become: true
+  ansible.builtin.debug:
+    msg: 'file: {{ stack_remote_path }}/{{ item.path }}; mode: {{ item.mode }}'
+    verbosity: 1
+  with_community.general.filetree: '{{ chart_path }}/templates/'
+  when: item.state == 'file'
 
-- name: Render stack template files to remote host
+- name: Templated files are present in the {{ shipyard_stack.name }} stack directory
   become: true
   vars:
     # Define two top-level (hence the uppercase first character - just like Helm) variables to use in the templates
-    Stack: "{{ shipyard_stack }}"
-    Values: "{{ values }}"
+    Stack: '{{ shipyard_stack }}'
+    Values: '{{ values }}'
   ansible.builtin.template:
-    src: "{{ chart_path }}/templates/{{ item }}"
-    dest: "{{ stack_remote_path }}/{{ item }}"
-    mode: u=rw,g=r
-  loop: "{{ shipyard_stack_chart_templates }}"
+    src: '{{ chart_path }}/templates/{{ item.path }}'
+    dest: '{{ stack_remote_path }}/{{ item.path }}'
+    mode: u=rw,g=r,o=r
+  with_community.general.filetree: '{{ chart_path }}/templates/'
+  when: item.state == 'file'
 
 - name: Docker secrets are present
   become: true

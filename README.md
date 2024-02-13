@@ -116,9 +116,10 @@ my-shipyard-chart/
     docker-compose.yml # the docker compose template file for this chart
     example.conf # an example config file template for this chart
     env.example # another example config file template for this chart
+    a-directory/ # a directory to be copied to the target host
 ```
 
-The Shipyard role will copy over all files in the `templates/` directory onto the target host, and then render them using the values from the `values.yaml` file.
+The Shipyard role will copy over all files and folders in the `templates/` directory onto the target host, and then render the files using the Chart and Stack values (see the next section for more info about this).
 
 ## values.yaml / values.sops.yaml and chart default values
 
