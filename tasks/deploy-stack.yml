@@ -1,19 +1,19 @@
-- name: "Set shipyard_stack_chart_local_path"
+- name: "Set chart_path"
   set_fact:
-    shipyard_stack_chart_local_path: "{{ shipyard_charts_path }}/{{ shipyard_stack.chart }}"
+    chart_path: "{{ shipyard_charts_path }}/{{ shipyard_stack.chart }}"
 
-- name: "Print shipyard_stack_chart_local_path: "
+- name: "Print chart_path: "
   debug:
-    msg: "{{ shipyard_stack_chart_local_path }}"
+    msg: "{{ chart_path }}"
 
-- name: "Set shipyard_stack_chart_remote_path"
+- name: "Set stack_remote_path"
   set_fact:
-    shipyard_stack_chart_remote_path: "/opt/shipyard/stacks/{{ shipyard_stack.name }}"
+    stack_remote_path: "/opt/shipyard/stacks/{{ shipyard_stack.name }}"
 
 - name: Ensure remote stack directory for {{ shipyard_stack.name }}
   become: true
   ansible.builtin.file:
-    path: "{{ shipyard_stack_chart_remote_path }}"
+    path: "{{ stack_remote_path }}"
     state: directory
     mode: '0700'
 
@@ -23,7 +23,7 @@
     stack_values: "{{ lookup('file', '{{shipyard_stacks_path}}/{{ shipyard_stack.name }}/values.yaml', errors='ignore') | from_yaml | default({}, true) }}"
     stack_values_sops: "{{ lookup('community.sops.sops', '{{shipyard_stacks_path}}/{{ shipyard_stack.name }}/values.sops.yaml', errors='ignore') | from_yaml | default({}, true) }}"
     # -- Default stack values from the role
-    default_values: "{{ lookup('file', '{{ shipyard_stack_chart_local_path }}/values.yaml') | from_yaml }}"
+    default_values: "{{ lookup('file', '{{ chart_path }}/values.yaml') | from_yaml }}"
 
 - name: "Combine values"
   set_fact:
@@ -33,14 +33,14 @@
   ansible.builtin.debug:
     msg: "{{ values }}"
 
-- name: "Debug shipyard_stack_chart_local_path"
+- name: "Debug chart_path"
   ansible.builtin.debug:
-    msg: "Path: '{{ shipyard_stack_chart_local_path }}'"
+    msg: "Path: '{{ chart_path }}'"
 
 - name: Find stack chart templates
   delegate_to: localhost
   ansible.builtin.find:
-    paths: "{{ shipyard_stack_chart_local_path }}/templates"
+    paths: "{{ chart_path }}/templates"
     hidden: true
   register: files
 
@@ -60,8 +60,8 @@
     Stack: "{{ shipyard_stack }}"
     Values: "{{ values }}"
   ansible.builtin.template:
-    src: "{{ shipyard_stack_chart_local_path }}/templates/{{ item }}"
-    dest: "{{ shipyard_stack_chart_remote_path }}/{{ item }}"
+    src: "{{ chart_path }}/templates/{{ item }}"
+    dest: "{{ stack_remote_path }}/{{ item }}"
     mode: u=rw,g=r
   loop: "{{ shipyard_stack_chart_templates }}"
 
@@ -81,4 +81,4 @@
     state: present
     with_registry_auth: true
     compose:
-      - "{{ shipyard_stack_chart_remote_path }}/docker-compose.yml"
+      - "{{ stack_remote_path }}/docker-compose.yml"
